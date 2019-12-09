@@ -44,6 +44,31 @@ export default class Repository extends Component {
     });
   }
 
+  handleFilter = async e => {
+    e.preventDefault();
+    console.log(e.target.value);
+
+    this.setState({
+      loading: true,
+    });
+
+    try {
+      const state = e.target.value;
+      const { repository } = this.state;
+
+      const response = await api.get(
+        `/repos/${repository.full_name}/issues?${state}`
+      );
+
+      this.setState({
+        issues: response.data,
+        loading: false,
+      });
+    } catch (error) {
+      console.log('error');
+    }
+  };
+
   render() {
     const { repository, issues, loading } = this.state;
 
@@ -62,8 +87,26 @@ export default class Repository extends Component {
           <img src={repository.owner.avatar_url} alt={repository.owner.login} />
           <h1>{repository.name}</h1>
           <p>{repository.description}</p>
+          <ul>
+            <button
+              type="button"
+              onClick={this.handleFilter}
+              value="state=open"
+            >
+              Aberto
+            </button>
+            <button
+              type="button"
+              onClick={this.handleFilter}
+              value="state=closed"
+            >
+              Fechdo
+            </button>
+            <button type="button" onClick={this.handleFilter} value="state=all">
+              Todos
+            </button>
+          </ul>
         </Owner>
-
         <IssueList>
           {issues.map(issue => (
             <li key={String(issue.id)}>
